@@ -3,6 +3,7 @@ package com.appimake.drawerapplication
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -16,7 +17,7 @@ import java.util.*
 class MainActivity : DrawerAppActivity() {
     init {
         defaultContentBackground = Color.WHITE
-        defaultNavStyle = DANavBarStyle("#FFDDAA", "#FFFFFF", 18f)
+        defaultNavStyle = DANavBarStyle("#FFDDAA", "#FFFFFF", 18f, null, null)
 
         navBG = Color.WHITE
 
@@ -33,7 +34,7 @@ class MainActivity : DrawerAppActivity() {
                 resources.getDimension(R.dimen.nav_header_vertical_spacing).toInt())
         headTextA.typeface = Typeface.DEFAULT_BOLD
         headTextA.text = "Section A : Icon type"
-        ItemList.add(DAMenuItem("TEST", headTextA, null, null, null))
+        ItemList.add(DAMenuItem("TEST", headTextA, null, null, null, null))
 
         ItemList.add(DAMenuItem("EX 1",
                 DAMenuItemDefault("IC is URL",
@@ -43,6 +44,7 @@ class MainActivity : DrawerAppActivity() {
                         null),
                 null,
                 null,
+                null,
                 FragmentA()))
         ItemList.add(DAMenuItem("EX 2",
                 DAMenuItemDefault("IC is Drawable",
@@ -50,6 +52,7 @@ class MainActivity : DrawerAppActivity() {
                         resources.getDrawable(R.drawable.add, null),
                         resources.getDrawable(R.drawable.remove, null),
                         null),
+                null,
                 null,
                 null,
                 FragmentB()))
@@ -63,6 +66,7 @@ class MainActivity : DrawerAppActivity() {
                         null),
                 null,
                 null,
+                null,
                 FragmentC()))
         ItemList.add(DAMenuItem("EX 4",
                 DAMenuItemDefault("IC is Bitmap",
@@ -72,8 +76,8 @@ class MainActivity : DrawerAppActivity() {
                         null),
                 null,
                 null,
+                null,
                 FragmentA()))
-
 
         val headTextB = TextView(this)
         headTextB.setPadding(resources.getDimension(R.dimen.nav_header_vertical_spacing).toInt(),
@@ -82,18 +86,19 @@ class MainActivity : DrawerAppActivity() {
                 resources.getDimension(R.dimen.nav_header_vertical_spacing).toInt())
         headTextB.typeface = Typeface.DEFAULT_BOLD
         headTextB.text = "Section B : Action"
-        ItemList.add(DAMenuItem("TEST", headTextB, null, null, null))
+        ItemList.add(DAMenuItem("TEST", headTextB, null, null, null, null))
 
         ItemList.add(DAMenuItem("EX 5",
                 DAMenuItemDefault("Callback action",
                         null,
                         null,
                         null,
-                        object : DACallBack{
+                        object : DACallBack {
                             override fun onClick(data: Any) {
                                 Toast.makeText(this@MainActivity, (data as View).tag.toString(), Toast.LENGTH_SHORT).show()
                             }
                         }),
+                null,
                 null,
                 null,
                 FragmentA()))
@@ -102,15 +107,15 @@ class MainActivity : DrawerAppActivity() {
                         null,
                         null,
                         null,
-                        object : DACallBack{
+                        object : DACallBack {
                             override fun onClick(data: Any) {
                                 ((data as LinearLayout).getChildAt(1) as TextView).text = "Selected on " + Calendar.getInstance().timeInMillis
                             }
                         }),
                 null,
                 null,
+                null,
                 FragmentB()))
-
 
         val headTextC = TextView(this)
         headTextC.setPadding(resources.getDimension(R.dimen.nav_header_vertical_spacing).toInt(),
@@ -119,7 +124,7 @@ class MainActivity : DrawerAppActivity() {
                 resources.getDimension(R.dimen.nav_header_vertical_spacing).toInt())
         headTextC.typeface = Typeface.DEFAULT_BOLD
         headTextC.text = "Section C : Text style"
-        ItemList.add(DAMenuItem("TEST", headTextC, null, null, null))
+        ItemList.add(DAMenuItem("TEST", headTextC, null, null, null, null))
 
 
         ItemList.add(DAMenuItem("EX 7",
@@ -128,6 +133,7 @@ class MainActivity : DrawerAppActivity() {
                         null,
                         null,
                         null),
+                null,
                 null,
                 null,
                 FragmentA()))
@@ -139,6 +145,7 @@ class MainActivity : DrawerAppActivity() {
                         null),
                 null,
                 null,
+                null,
                 FragmentA()))
         ItemList.add(DAMenuItem("EX 9",
                 DAMenuItemDefault("Text typeface",
@@ -146,6 +153,7 @@ class MainActivity : DrawerAppActivity() {
                         null,
                         null,
                         null),
+                null,
                 null,
                 null,
                 FragmentA()))
@@ -157,8 +165,7 @@ class MainActivity : DrawerAppActivity() {
                 resources.getDimension(R.dimen.nav_header_vertical_spacing).toInt())
         headTextD.typeface = Typeface.DEFAULT_BOLD
         headTextD.text = "Section D : NavBar style"
-        ItemList.add(DAMenuItem("TEST", headTextD,null,null, null))
-
+        ItemList.add(DAMenuItem("TEST", headTextD, null, null, null, null))
 
         ItemList.add(DAMenuItem("EX 10",
                 DAMenuItemDefault("Custom style",
@@ -166,7 +173,29 @@ class MainActivity : DrawerAppActivity() {
                         null,
                         null,
                         null),
-                DANavBarStyle(Color.YELLOW, "#DDEEAA", 20f),
+                null,
+                DANavBarStyle(Color.YELLOW, "#DDEEAA", 20f, null, null),
+                null,
+                FragmentA()))
+
+        ItemList.add(DAMenuItem("EX 11",
+                DAMenuItemDefault("Action",
+                        null,
+                        null,
+                        null,
+                        null),
+                null,
+                DANavBarStyle(Color.BLUE, "#FFFFFF", 18f,
+                        DAActionItem(R.drawable.low_battery, object : DACallBack {
+                            override fun onClick(data: Any) {
+                                Toast.makeText(this@MainActivity, "click primary action", Toast.LENGTH_SHORT).show()
+                            }
+                        }),
+                        DAActionItem(R.drawable.settings, object : DACallBack {
+                            override fun onClick(data: Any) {
+                                Toast.makeText(this@MainActivity, "click secondary action", Toast.LENGTH_SHORT).show()
+                            }
+                        })),
                 null,
                 FragmentA()))
 
@@ -177,28 +206,52 @@ class MainActivity : DrawerAppActivity() {
                 resources.getDimension(R.dimen.nav_header_vertical_spacing).toInt())
         headTextE.typeface = Typeface.DEFAULT_BOLD
         headTextE.text = "Section E : More"
-        ItemList.add(DAMenuItem("TEST", headTextE,null,null, null))
+        ItemList.add(DAMenuItem("TEST", headTextE, null, null, null, null))
 
-        ItemList.add(DAMenuItem("EX 11",
+        ItemList.add(DAMenuItem("EX 12",
                 DAMenuItemDefault("Change content background",
                         null,
                         null,
                         null,
                         null),
-                DANavBarStyle(Color.TRANSPARENT, Color.BLACK, 18f),
+                null,
+                DANavBarStyle(Color.TRANSPARENT, Color.BLACK, 18f, null, null),
                 R.drawable.content_background,
                 FragmentA()))
 
+        val headTextF = TextView(this)
+        headTextF.setPadding(resources.getDimension(R.dimen.nav_header_vertical_spacing).toInt(),
+                resources.getDimension(R.dimen.nav_header_vertical_spacing).toInt(),
+                0,
+                resources.getDimension(R.dimen.nav_header_vertical_spacing).toInt())
+        headTextF.typeface = Typeface.DEFAULT_BOLD
+        headTextF.text = "Section F : Badges"
+        ItemList.add(DAMenuItem("TEST", headTextF, null, null, null, null))
+
+        ItemList.add(DAMenuItem("EX 13",
+                DAMenuItemDefault("Badges",
+                        null,
+                        null,
+                        null,
+                        null),
+                DABadges("14", Color.RED, Color.WHITE, 5, GradientDrawable.OVAL, object : DABadgesChange {
+                    override fun onChange(view: TextView) {
+                        view.text = "33"
+                    }
+                }),
+                null,
+                null,
+                FragmentA()))
     }
 
-    override fun setUserProfile() = DAUserDataModel(
+    override fun setDAHeader() = DAHeaderModel(
             "Nattapong Rattasamut",
             "raatasamut@gmail.com",
             "https://thenypost.files.wordpress.com/2018/02/180223-stuffed-cat-feature-image.jpg",
-            object : DACallBack{
+            null,
+            object : DACallBack {
                 override fun onClick(data: Any) {
                     Toast.makeText(this@MainActivity, data.toString(), Toast.LENGTH_SHORT).show()
                 }
             })
-
 }

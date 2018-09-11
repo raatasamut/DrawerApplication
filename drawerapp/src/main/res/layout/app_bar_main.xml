@@ -17,6 +17,41 @@
         android:layout_height="?android:attr/actionBarSize"
         android:padding="@dimen/navigationbar_title_padding">
 
+        <ImageButton
+            android:id="@+id/navigation_bar_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:backgroundTint="#0000"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_menu" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/navigation_bar_action_secondary"
+                android:layout_width="@dimen/navigationbar_title_action_size"
+                android:layout_height="@dimen/navigationbar_title_action_size"
+                android:layout_marginRight="@dimen/menu_padding"
+                android:backgroundTint="#0000"
+                android:scaleType="fitCenter"
+                android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/navigation_bar_action_primary"
+                android:layout_width="@dimen/navigationbar_title_action_size"
+                android:layout_height="@dimen/navigationbar_title_action_size"
+                android:backgroundTint="#0000"
+                android:scaleType="fitCenter"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+
         <TextView
             android:id="@+id/navigation_bar_title"
             android:layout_width="match_parent"
