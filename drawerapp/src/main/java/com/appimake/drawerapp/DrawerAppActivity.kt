@@ -13,11 +13,12 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.TextView
 import com.bumptech.glide.Glide
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.view.*
-import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.da_activity_main.*
+import kotlinx.android.synthetic.main.da_activity_main.view.*
+import kotlinx.android.synthetic.main.da_app_bar_main.*
 import kotlinx.android.synthetic.main.da_badges.view.*
 import kotlinx.android.synthetic.main.da_menu_item.view.*
 
@@ -36,7 +37,7 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.da_activity_main)
 
         if (savedInstanceState != null &&
                 savedInstanceState.getInt(getString(R.string.selected_position), 0) != 0) {
@@ -123,6 +124,7 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
 
     private fun selected(position: Int) {
         if (nav_view.da_menu_list.childCount > 0 &&
+                nav_view.da_menu_list.getChildAt(position) != null &&
                 (nav_view.da_menu_list.getChildAt(position).tag as DAMenuItem).moduleView != null) {
 
             clearAction()
@@ -142,7 +144,8 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
 
 
             setNavBar((nav_view.da_menu_list.getChildAt(position).tag as DAMenuItem).navBarStyle)
-            title = (nav_view.da_menu_list.getChildAt(position).tag as DAMenuItem).name
+
+            setFMNavTitle((nav_view.da_menu_list.getChildAt(position).tag as DAMenuItem).name)
 
             navigation_app_bg.setBackgroundColor(defaultContentBackground)
             setContentBackground(navigation_app_bg, (nav_view.da_menu_list.getChildAt(position).tag as DAMenuItem).background)
@@ -229,13 +232,13 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
             }
         }
 
-        setAction(style.primaryAction, navigation_bar_action_primary)
-        setAction(style.secondaryAction, navigation_bar_action_secondary)
+        setAction(style.primaryAction, navigation_bar_action_primary, navigation_bar_action_primary_icon, navigation_bar_action_primary_acc)
+        setAction(style.secondaryAction, navigation_bar_action_secondary, navigation_bar_action_secondary_icon, navigation_bar_action_secondary_acc)
     }
 
-    private fun setAction(data: DAActionItem?, iv: ImageView) {
+    private fun setAction(data: DAActionItem?, rl: RelativeLayout, iv: ImageView, acc: LinearLayout) {
         if (data != null) {
-            iv.visibility = View.VISIBLE
+            rl.visibility = View.VISIBLE
 
             when (data.icon) {
                 is String -> Glide.with(this)
@@ -245,9 +248,16 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
                 is Bitmap -> iv.setImageBitmap(data.icon)
                 is Int -> iv.setImageResource(data.icon)
             }
-            iv.setOnClickListener {
+
+            if (data.viewAcc != null) {
+                acc.addView(data.viewAcc)
+            }
+
+            rl.setOnClickListener {
                 data.onClick.onClick(iv)
             }
+        } else {
+            rl.visibility = View.GONE
         }
     }
 
@@ -308,6 +318,29 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
             badges.onChange.onChange(badgesView.da_badges_count)
 
         parent.addView(badgesView)
+    }
+
+
+    private fun setFMNavTitle(data: Any?) {
+        when {
+            data != null -> when (data) {
+                is Drawable -> {
+                    navigation_bar_title.visibility = View.GONE
+                    navigation_bar_title_iv.visibility = View.VISIBLE
+                    navigation_bar_title_iv.setImageDrawable(data)
+                }
+                is String -> {
+                    navigation_bar_title_iv.visibility = View.GONE
+                    navigation_bar_title.visibility = View.VISIBLE
+                    navigation_bar_title.text = data.toString()
+                }
+                is Int -> {
+                    navigation_bar_title.visibility = View.GONE
+                    navigation_bar_title_iv.visibility = View.VISIBLE
+                    navigation_bar_title_iv.setImageResource(data)
+                }
+            }
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {

@@ -2,6 +2,7 @@ package com.appimake.drawerapp
 
 import android.graphics.Typeface
 import android.support.v4.app.Fragment
+import android.view.View
 
 data class DAHeaderModel(
         val name: String,
@@ -11,7 +12,7 @@ data class DAHeaderModel(
         val onClick: DACallBack)
 
 data class DAMenuItem(
-        val name: String,
+        val name: Any?,
         val customView: Any?,
         val badges: DABadges?,
         val navBarStyle: DANavBarStyle?,
@@ -40,6 +41,7 @@ data class DANavBarStyle(
 
 data class DAActionItem(
         val icon: Any,
+        val viewAcc: View?,
         val onClick: DACallBack)
 
 data class DABadges(

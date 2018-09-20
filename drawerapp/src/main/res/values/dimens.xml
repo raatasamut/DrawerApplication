@@ -7,13 +7,15 @@
     <dimen name="fab_margin">16dp</dimen>
 
 
-    <dimen name="navigationbar_title_padding">6dp</dimen>
+    <dimen name="navigationbar_burger_padding">12dp</dimen>
+
+    <dimen name="navigationbar_title_padding">8dp</dimen>
     <dimen name="navigationbar_title_text_size">18sp</dimen>
-    <dimen name="navigationbar_title_action_size">48dp</dimen>
+    <dimen name="navigationbar_title_action_size">24dp</dimen>
 
     <dimen name="menu_height">56dp</dimen>
-    <dimen name="menu_padding">8dp</dimen>
+    <dimen name="menu_padding">16dp</dimen>
     <dimen name="menu_icon_wh">24dp</dimen>
 
-    <dimen name="menu_badages_padding">12dp</dimen>
+    <dimen name="menu_badages_wh">32dp</dimen>
 </resources>

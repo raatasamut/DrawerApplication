@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="@dimen/menu_height"
-    android:layout_height="@dimen/menu_height"
-    android:padding="@dimen/menu_badages_padding">
+    android:layout_width="@dimen/menu_badages_wh"
+    android:layout_height="@dimen/menu_badages_wh">
 
     <ImageView
         android:id="@+id/da_badges_bg"

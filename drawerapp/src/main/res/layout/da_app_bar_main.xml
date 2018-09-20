@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_app_bg"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    tools:context=".DrawerAppActivity"
+    tools:openDrawer="start">
+
+    <RelativeLayout
+        android:id="@+id/navigation_bar_bg"
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize">
+
+        <ImageView
+            android:id="@+id/navigation_bar_menu"
+            android:layout_width="?android:attr/actionBarSize"
+            android:layout_height="?android:attr/actionBarSize"
+            android:layout_centerVertical="true"
+            android:padding="@dimen/navigationbar_burger_padding"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_menu" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:orientation="horizontal">
+
+
+            <RelativeLayout
+                android:id="@+id/navigation_bar_action_secondary"
+                android:layout_width="48dp"
+                android:layout_height="?android:attr/actionBarSize">
+
+                <ImageView
+                    android:id="@+id/navigation_bar_action_secondary_icon"
+                    android:layout_width="@dimen/navigationbar_title_action_size"
+                    android:layout_height="@dimen/navigationbar_title_action_size"
+                    android:layout_centerInParent="true"
+                    android:scaleType="fitCenter" />
+
+                <LinearLayout
+                    android:id="@+id/navigation_bar_action_secondary_acc"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentTop="true"
+                    android:gravity="top|right"
+                    android:orientation="vertical" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/navigation_bar_action_primary"
+                android:layout_width="48dp"
+                android:layout_height="?android:attr/actionBarSize">
+
+                <ImageView
+                    android:id="@+id/navigation_bar_action_primary_icon"
+                    android:layout_width="@dimen/navigationbar_title_action_size"
+                    android:layout_height="@dimen/navigationbar_title_action_size"
+                    android:layout_centerInParent="true"
+                    android:scaleType="fitCenter" />
+
+                <LinearLayout
+                    android:id="@+id/navigation_bar_action_primary_acc"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentTop="true"
+                    android:gravity="top|right"
+                    android:orientation="vertical" />
+
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:padding="@dimen/navigationbar_title_padding">
+
+            <ImageView
+                android:id="@+id/navigation_bar_title_iv"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitCenter" />
+
+            <TextView
+                android:id="@+id/navigation_bar_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="TITLE"
+                android:textColor="@android:color/background_dark"
+                android:textSize="@dimen/navigationbar_title_text_size" />
+
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/da_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+
+</LinearLayout>

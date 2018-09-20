@@ -4,6 +4,8 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -57,7 +59,7 @@ class MainActivity : DrawerAppActivity() {
                 null,
                 FragmentB()))
         ItemList.add(DAMenuItem("EX 3",
-                DAMenuItemDefault("IC is Res ID",
+                DAMenuItemDefault("IC is Bitmap",
                         null,
                         BitmapFactory.decodeResource(resources,
                                 R.drawable.level),
@@ -69,7 +71,7 @@ class MainActivity : DrawerAppActivity() {
                 null,
                 FragmentC()))
         ItemList.add(DAMenuItem("EX 4",
-                DAMenuItemDefault("IC is Bitmap",
+                DAMenuItemDefault("IC is Res ID",
                         null,
                         R.drawable.low_battery,
                         R.drawable.full_battery,
@@ -178,6 +180,14 @@ class MainActivity : DrawerAppActivity() {
                 null,
                 FragmentA()))
 
+
+        val layout = LinearLayout(this)
+        layout.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT)
+
+        var exView = LayoutInflater.from(this).inflate(com.appimake.drawerapp.R.layout.da_badges, layout, false)
+
+
         ItemList.add(DAMenuItem("EX 11",
                 DAMenuItemDefault("Action",
                         null,
@@ -186,12 +196,12 @@ class MainActivity : DrawerAppActivity() {
                         null),
                 null,
                 DANavBarStyle(Color.BLUE, "#FFFFFF", 18f,
-                        DAActionItem(R.drawable.low_battery, object : DACallBack {
+                        DAActionItem(R.drawable.low_battery, exView, object : DACallBack {
                             override fun onClick(data: Any) {
                                 Toast.makeText(this@MainActivity, "click primary action", Toast.LENGTH_SHORT).show()
                             }
                         }),
-                        DAActionItem(R.drawable.settings, object : DACallBack {
+                        DAActionItem(R.drawable.settings, null, object : DACallBack {
                             override fun onClick(data: Any) {
                                 Toast.makeText(this@MainActivity, "click secondary action", Toast.LENGTH_SHORT).show()
                             }
@@ -208,7 +218,7 @@ class MainActivity : DrawerAppActivity() {
         headTextE.text = "Section E : More"
         ItemList.add(DAMenuItem("TEST", headTextE, null, null, null, null))
 
-        ItemList.add(DAMenuItem("EX 12",
+        ItemList.add(DAMenuItem(resources.getDrawable(R.drawable.add, null),
                 DAMenuItemDefault("Change content background",
                         null,
                         null,
@@ -254,4 +264,9 @@ class MainActivity : DrawerAppActivity() {
                     Toast.makeText(this@MainActivity, data.toString(), Toast.LENGTH_SHORT).show()
                 }
             })
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        navBG = resources.getColor(R.color.testColor, null)
+        super.onCreate(savedInstanceState)
+    }
 }
