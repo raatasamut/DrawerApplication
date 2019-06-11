@@ -25,6 +25,18 @@
             android:src="@drawable/ic_menu" />
 
         <LinearLayout
+            android:id="@+id/navigation_bar_title_custom_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toStartOf="@+id/navigation_bar_bageds"
+            android:layout_toEndOf="@+id/navigation_bar_menu"
+            android:orientation="horizontal">
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navigation_bar_bageds"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
@@ -47,8 +59,8 @@
                     android:id="@+id/navigation_bar_action_secondary_acc"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_alignParentEnd="true"
                     android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
                     android:gravity="top|right"
                     android:orientation="vertical" />
 
@@ -70,8 +82,8 @@
                     android:id="@+id/navigation_bar_action_primary_acc"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_alignParentEnd="true"
                     android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
                     android:gravity="top|right"
                     android:orientation="vertical" />
 
@@ -82,6 +94,7 @@
 
 
         <RelativeLayout
+            android:id="@+id/navigation_bar_title_normal_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
@@ -103,6 +116,8 @@
                 android:textSize="@dimen/navigationbar_title_text_size" />
 
         </RelativeLayout>
+
+
     </RelativeLayout>
 
     <FrameLayout

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="@dimen/menu_padding">
+
+    <ImageView
+        android:id="@+id/da_menu_group_icon"
+        android:layout_width="@dimen/menu_icon_wh"
+        android:layout_height="@dimen/menu_icon_wh"
+        android:layout_marginRight="@dimen/menu_padding"
+        android:scaleType="fitCenter"
+        android:src="@mipmap/ic_launcher" />
+
+    <TextView
+        android:id="@+id/da_menu_group_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="MENU ITEM" />
+
+
+    <ImageView
+        android:id="@+id/da_menu_group_arrow"
+        android:layout_width="@dimen/menu_icon_wh"
+        android:layout_height="@dimen/menu_icon_wh"
+        android:layout_marginLeft="@dimen/menu_padding"
+        android:scaleType="fitCenter"
+        android:src="@drawable/arrow_down" />
+
+</LinearLayout>

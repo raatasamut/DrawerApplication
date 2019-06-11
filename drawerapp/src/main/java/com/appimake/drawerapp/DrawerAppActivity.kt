@@ -2,12 +2,16 @@ package com.appimake.drawerapp
 
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.support.design.widget.NavigationView
+import android.support.v4.app.Fragment
 import android.support.v4.view.GravityCompat
+import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -15,6 +19,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import com.appimake.drawerapp.expand.DAExpandableLayout
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.da_activity_main.*
 import kotlinx.android.synthetic.main.da_activity_main.view.*
@@ -26,22 +31,33 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
     var defaultContentBackground = Color.BLACK
     var defaultNavStyle = DANavBarStyle(Color.BLACK, Color.WHITE, 18f, null, null)
 
-    var navBG = Color.WHITE
+    var drawerBG = Color.WHITE
+    var drawerSubItemBG = Color.WHITE
 
-    var selectedPosition = 0
-    var menuItemSelectedBackgound = Color.CYAN
+    var menuItemSelectedBackground = Color.CYAN
+
+    var fontTypeFace: Typeface? = null
+
+    var selectedTag = ""
+
+    private var selectedPosition = 0
+
+    private var subMenuSelectedView: DASelectedView? = null
+
+    private var moduleView: Fragment? = null
 
     abstract fun setDAHeader(): Any
 
     abstract fun setMenuItemList(ItemList: ArrayList<DAMenuItem>)
 
+    abstract fun setDASelectedCallBack(): DACallBack
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.da_activity_main)
 
-        if (savedInstanceState != null &&
-                savedInstanceState.getInt(getString(R.string.selected_position), 0) != 0) {
-            this.selectedPosition = savedInstanceState.getInt(getString(R.string.selected_position))
+        savedInstanceState?.getString(getString(R.string.selected_position))?.let {
+            this.selectedTag = it
         }
 
         navigation_bar_menu.setOnClickListener {
@@ -50,10 +66,32 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
             }
         }
         nav_view.setNavigationItemSelectedListener(this)
-        nav_view.setBackgroundColor(navBG)
+        nav_view.setBackgroundColor(drawerBG)
 
         setHeader()
         setMenu()
+
+        drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
+            override fun onDrawerStateChanged(p0: Int) {}
+
+            override fun onDrawerSlide(p0: View, p1: Float) {}
+
+            override fun onDrawerClosed(p0: View) {
+                moduleView?.let {
+                    supportFragmentManager
+                            .beginTransaction()
+                            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                            .replace(R.id.da_container, moduleView!!)
+                            .commit()
+                }
+            }
+
+            override fun onDrawerOpened(p0: View) {
+                subMenuSelectedView?.groupView?.performClick()
+            }
+        })
+
+        selectModuleByTag(selectedTag)
     }
 
     private fun setHeader() {
@@ -70,6 +108,11 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
         }
     }
 
+    fun setFooter(view: View) {
+        nav_view.da_footer.removeAllViews()
+        nav_view.da_footer.addView(view)
+    }
+
     private fun initOnClick() {
         nav_view.da_profile_iv_picture.setOnClickListener {
             (setDAHeader() as DAHeaderModel).onClick.onClick(resources.getString(R.string.da_profile_click))
@@ -77,6 +120,11 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
     }
 
     private fun initData() {
+        if (fontTypeFace != null) {
+            nav_view.da_profile_tv_name.typeface = fontTypeFace
+            nav_view.da_profile_tv_mail.typeface = fontTypeFace
+        }
+
         Glide.with(applicationContext).load((setDAHeader() as DAHeaderModel).pictureURL).into(nav_view.da_profile_iv_picture)
         nav_view.da_profile_tv_name.text = (setDAHeader() as DAHeaderModel).name
         nav_view.da_profile_tv_mail.text = (setDAHeader() as DAHeaderModel).email
@@ -103,6 +151,9 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
             var item = LayoutInflater.from(this).inflate(R.layout.da_menu_item, layout, false)
 
             if (daMenuItem.customView is DAMenuItemDefault) {
+                if (fontTypeFace != null) {
+                    item.da_menu_item_title.typeface = fontTypeFace
+                }
                 item.da_menu_item_title.text = daMenuItem.customView.title
                 setMenuIC(item.da_menu_item_icon, daMenuItem.customView.icDefault)
                 setFontStyle(daMenuItem.customView.titleStyle, item.da_menu_item_title, false)
@@ -115,60 +166,234 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
 
             item.tag = daMenuItem
 
-            item.setOnClickListener { p0 -> selected(nav_view.da_menu_list.indexOfChild(p0)) }
             nav_view.da_menu_list.addView(item)
+
+            // EXPANDED VIEW
+            if (!daMenuItem.subMenuList.isEmpty()) {
+
+                val exp = DAExpandableLayout(this)
+
+                val subContainer = LinearLayout(this)
+                subContainer.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT)
+                subContainer.orientation = LinearLayout.VERTICAL
+                subContainer.setBackgroundColor(drawerSubItemBG)
+
+                exp.addView(subContainer)
+
+                var expTag = ArrayList<String>()
+
+                daMenuItem.subMenuList.forEachIndexed { index, sub ->
+
+                    var subItem = LayoutInflater.from(this).inflate(R.layout.da_menu_item, layout, false)
+
+                    if (sub.customView is DAMenuItemDefault) {
+                        if (fontTypeFace != null) {
+                            subItem.da_menu_item_title.typeface = fontTypeFace
+                        }
+                        subItem.da_menu_item_title.text = sub.customView.title
+                        setMenuIC(subItem.da_menu_item_icon, sub.customView.icDefault)
+                        setFontStyle(sub.customView.titleStyle, subItem.da_menu_item_title, false)
+                    } else if (sub.customView != null) {
+                        subItem = sub.customView as View
+                    }
+
+                    sub.tag?.let {
+                        expTag.add(it)
+                    }
+
+                    subItem.tag = sub
+
+                    subItem.setOnClickListener { p0 ->
+                        Log.d("CSub", "${daMenuItem.title} : ${sub.title}")
+                        selectedSubMenu(exp, subItem, daMenuItem, sub)
+                    }
+
+                    subContainer.addView(subItem)
+
+                }
+
+                exp.tag = expTag
+
+                val arrow = ImageView(this)
+                arrow.setImageDrawable(resources.getDrawable(R.drawable.arrow_down, null))
+
+                (item as LinearLayout).addView(arrow)
+
+                item.setOnClickListener { p0 ->
+                    //                    val arr = (p0 as LinearLayout).getChildAt(p0.childCount -1)
+//                    if (arr is ImageView)
+                    arrow.animate().rotationXBy(180f).start()
+
+                    if (exp.isCollapsed) {
+                        exp.expand()
+                    } else {
+                        exp.collapse()
+                    }
+                }
+
+                nav_view.da_menu_list.addView(exp)
+            } else {
+                item.setOnClickListener { p0 ->
+                    selected(nav_view.da_menu_list.indexOfChild(p0))
+                }
+            }
+
         }
 
         selected(selectedPosition)
     }
 
-    private fun selected(position: Int) {
-        if (nav_view.da_menu_list.childCount > 0 &&
-                nav_view.da_menu_list.getChildAt(position) != null &&
-                (nav_view.da_menu_list.getChildAt(position).tag as DAMenuItem).moduleView != null) {
+    private fun clearSubMenuStyle(collapse: Boolean) {
+        subMenuSelectedView?.let {
+            it.view.setBackgroundColor(drawerSubItemBG)
+            setMenuIC(it.view.da_menu_item_icon, (it.sub.customView as DAMenuItemDefault).icDefault)
+            setFontStyle(it.sub.customView.titleStyle, it.view.da_menu_item_title, false)
+            if (collapse && it.groupView.isExpanded) it.groupView.performClick()
+        }
+    }
 
-            clearAction()
-            unSelect()
-            selectedPosition = position
-            if ((nav_view.da_menu_list.getChildAt(selectedPosition).tag as DAMenuItem).customView is DAMenuItemDefault) {
-                setMenuIC(nav_view.da_menu_list.getChildAt(selectedPosition).da_menu_item_icon, ((nav_view.da_menu_list.getChildAt(selectedPosition).tag as DAMenuItem).customView as DAMenuItemDefault).icSelected)
-                setFontStyle(((nav_view.da_menu_list.getChildAt(selectedPosition).tag as DAMenuItem).customView as DAMenuItemDefault).titleStyle, nav_view.da_menu_list.getChildAt(selectedPosition).da_menu_item_title, true)
+    private fun selectedSubMenu(viewGroup: DAExpandableLayout, view: View, group: DAMenuItem, sub: DASubMenuItem) {
+        clearSubMenuStyle(false)
 
-                ((nav_view.da_menu_list.getChildAt(selectedPosition).tag as DAMenuItem).customView as DAMenuItemDefault).let { daMenuItemDefault ->
-                    if (daMenuItemDefault.onClick != null)
-                        daMenuItemDefault.onClick.onClick(nav_view.da_menu_list.getChildAt(selectedPosition))
+        subMenuSelectedView = DASelectedView(viewGroup, view, group, sub)
+
+        subMenuSelectedView?.sub?.let {
+            if (it.title != null)
+                setDASelectedCallBack().onClick(it)
+
+            if (it.moduleView != null) {
+                clearAction()
+                unSelect()
+
+                selectedTag = if (it.tag != null) it.tag else ""
+
+                if (it.customView is DAMenuItemDefault) {
+                    setMenuIC(view.da_menu_item_icon, it.customView.icSelected)
+                    setFontStyle(it.customView.titleStyle, view.da_menu_item_title, true)
+
+                    it.customView.let { daMenuItemDefault ->
+                        daMenuItemDefault.onClick?.onClick(view)
+                    }
                 }
+                view.setBackgroundColor(menuItemSelectedBackground)
+                setNavBar(group.navBarStyle)
+                setFMNavTitle(it.title)
 
-            }
-            nav_view.da_menu_list.getChildAt(position).setBackgroundColor(menuItemSelectedBackgound)
+                navigation_app_bg.setBackgroundColor(defaultContentBackground)
+                setContentBackground(navigation_app_bg, group.background)
 
+                moduleView = it.moduleView
 
-            setNavBar((nav_view.da_menu_list.getChildAt(position).tag as DAMenuItem).navBarStyle)
-
-            setFMNavTitle((nav_view.da_menu_list.getChildAt(position).tag as DAMenuItem).name)
-
-            navigation_app_bg.setBackgroundColor(defaultContentBackground)
-            setContentBackground(navigation_app_bg, (nav_view.da_menu_list.getChildAt(position).tag as DAMenuItem).background)
-
-            val ft = this.supportFragmentManager.beginTransaction()
-            ft.replace(R.id.da_container, (nav_view.da_menu_list.getChildAt(position).tag as DAMenuItem).moduleView!!).commit()
-
-            if (drawer_layout != null && drawer_layout.isDrawerOpen(GravityCompat.START)) {
-                drawer_layout.closeDrawer(GravityCompat.START)
+                if (drawer_layout != null && drawer_layout.isDrawerOpen(GravityCompat.START)) {
+                    drawer_layout.closeDrawer(GravityCompat.START)
+                }
             }
         }
     }
 
-    private fun unSelect() {
-        if (nav_view.da_menu_list.childCount > 0 &&
-                (nav_view.da_menu_list.getChildAt(selectedPosition).tag as DAMenuItem).moduleView != null) {
-            nav_view.da_menu_list.getChildAt(selectedPosition).setBackgroundColor(navBG)
+    fun selectModuleByTag(tag: String) {
+        loop@ for (i in 0 until nav_view.da_menu_list.childCount) {
+            if (nav_view.da_menu_list.getChildAt(i).tag is DAMenuItem) {
+                if ((nav_view.da_menu_list.getChildAt(i).tag as DAMenuItem).tag.equals(tag)) {
+                    selected(i)
+                    return
+                }
 
-            if ((nav_view.da_menu_list.getChildAt(selectedPosition).tag as DAMenuItem).customView is DAMenuItemDefault) {
-                setMenuIC(nav_view.da_menu_list.getChildAt(selectedPosition).da_menu_item_icon, ((nav_view.da_menu_list.getChildAt(selectedPosition).tag as DAMenuItem).customView as DAMenuItemDefault).icDefault)
-                setFontStyle(((nav_view.da_menu_list.getChildAt(selectedPosition).tag as DAMenuItem).customView as DAMenuItemDefault).titleStyle, nav_view.da_menu_list.getChildAt(selectedPosition).da_menu_item_title, false)
+                (nav_view.da_menu_list.getChildAt(i).tag as DAMenuItem).subMenuList.forEach {
+                    if (tag.equals(it.tag)) {
+                        findViewByTag(tag)?.let { subView: View ->
+                            selectedSubMenu(subView.parent.parent as DAExpandableLayout, subView, (nav_view.da_menu_list.getChildAt(i).tag as DAMenuItem), it)
+                        }
+                    }
+                }
             }
         }
+    }
+
+    private fun findViewByTag(tag: String): View? {
+        for (i in 0 until nav_view.da_menu_list.childCount) {
+            if (nav_view.da_menu_list.getChildAt(i) is DAExpandableLayout) {
+                val vtmp = (nav_view.da_menu_list.getChildAt(i) as DAExpandableLayout).getChildAt(0) as LinearLayout
+                for (j in 0 until vtmp.childCount) {
+                    if (vtmp.getChildAt(j).tag is DASubMenuItem) {
+                        vtmp.getChildAt(j).tag.let {
+                            if ((it as DASubMenuItem).tag.equals(tag)) {
+                                return vtmp.getChildAt(j)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null
+    }
+
+    private fun selected(position: Int) {
+        if (nav_view.da_menu_list.childCount > 0 &&
+                nav_view.da_menu_list.getChildAt(position) != null) {
+
+            val item = nav_view.da_menu_list.getChildAt(position).tag
+
+            if (item is DAMenuItem) if (item.subMenuList.isEmpty())
+                item.let { menuItem: DAMenuItem ->
+                    if (menuItem.title != null)
+                        setDASelectedCallBack().onClick(menuItem)
+                    if (menuItem.moduleView != null) {
+                        clearAction()
+                        unSelect()
+                        clearSubMenuStyle(true)
+                        selectedPosition = position
+                        selectedTag = if (menuItem.tag != null) menuItem.tag else ""
+                        if ((nav_view.da_menu_list.getChildAt(selectedPosition).tag as DAMenuItem).customView is DAMenuItemDefault) {
+                            setMenuIC(nav_view.da_menu_list.getChildAt(selectedPosition).da_menu_item_icon, ((nav_view.da_menu_list.getChildAt(selectedPosition).tag as DAMenuItem).customView as DAMenuItemDefault).icSelected)
+                            setFontStyle(((nav_view.da_menu_list.getChildAt(selectedPosition).tag as DAMenuItem).customView as DAMenuItemDefault).titleStyle, nav_view.da_menu_list.getChildAt(selectedPosition).da_menu_item_title, true)
+
+                            ((nav_view.da_menu_list.getChildAt(selectedPosition).tag as DAMenuItem).customView as DAMenuItemDefault).let { daMenuItemDefault ->
+                                daMenuItemDefault.onClick?.onClick(nav_view.da_menu_list.getChildAt(selectedPosition))
+                            }
+
+                        }
+                        nav_view.da_menu_list.getChildAt(position).setBackgroundColor(menuItemSelectedBackground)
+
+                        setNavBar(menuItem.navBarStyle)
+
+                        setFMNavTitle(menuItem.title)
+
+                        navigation_app_bg.setBackgroundColor(defaultContentBackground)
+                        setContentBackground(navigation_app_bg, menuItem.background)
+
+                        if (moduleView == null) {
+                            supportFragmentManager
+                                    .beginTransaction()
+                                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                                    .replace(R.id.da_container, menuItem.moduleView)
+                                    .commit()
+                        }
+                        moduleView = menuItem.moduleView
+
+                        subMenuSelectedView = null
+
+                        if (drawer_layout != null && drawer_layout.isDrawerOpen(GravityCompat.START)) {
+                            drawer_layout.closeDrawer(GravityCompat.START)
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun unSelect() {
+        if (nav_view.da_menu_list.childCount > 0)
+            if (nav_view.da_menu_list.getChildAt(selectedPosition).tag is DAMenuItem) {
+                (nav_view.da_menu_list.getChildAt(selectedPosition).tag as DAMenuItem).moduleView?.let {
+                    nav_view.da_menu_list.getChildAt(selectedPosition).setBackgroundColor(drawerBG)
+
+                    if ((nav_view.da_menu_list.getChildAt(selectedPosition).tag as DAMenuItem).customView is DAMenuItemDefault) {
+                        setMenuIC(nav_view.da_menu_list.getChildAt(selectedPosition).da_menu_item_icon, ((nav_view.da_menu_list.getChildAt(selectedPosition).tag as DAMenuItem).customView as DAMenuItemDefault).icDefault)
+                        setFontStyle(((nav_view.da_menu_list.getChildAt(selectedPosition).tag as DAMenuItem).customView as DAMenuItemDefault).titleStyle, nav_view.da_menu_list.getChildAt(selectedPosition).da_menu_item_title, false)
+                    }
+                }
+            }
     }
 
     override fun onBackPressed() {
@@ -200,12 +425,19 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
         style.let { daTextStyle ->
             when {
                 daTextStyle != null -> {
+
+
                     tv.textSize = daTextStyle.textSize
                     when {
                         isSelected -> tv.setTextColor(Color.parseColor(daTextStyle.selectedColor))
                         else -> tv.setTextColor(Color.parseColor(daTextStyle.defaultColor))
                     }
-                    tv.typeface = daTextStyle.typeFace
+
+                    if (daTextStyle.typeFace != null)
+                        tv.typeface = daTextStyle.typeFace
+                    else if (fontTypeFace != null) {
+                        tv.typeface = fontTypeFace
+                    }
                 }
             }
         }
@@ -214,26 +446,30 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
     private fun setNavBar(navStyle: DANavBarStyle?) {
         var style = defaultNavStyle
 
-        when {
-            navStyle != null -> style = navStyle
+        navStyle?.let {
+            style = it
         }
+        if (style.background == -1) {
+            navigation_bar_bg.visibility = View.GONE
+        } else {
+            navigation_bar_bg.visibility = View.VISIBLE
+            style.let {
+                navigation_bar_title.textSize = it.titleSize
 
-        style.let {
-            navigation_bar_title.textSize = it.titleSize
+                when {
+                    it.background is String -> navigation_bar_bg.setBackgroundColor(Color.parseColor(it.background))
+                    it.background is Int -> navigation_bar_bg.setBackgroundColor(it.background)
+                }
 
-            when {
-                it.background is String -> navigation_bar_bg.setBackgroundColor(Color.parseColor(it.background))
-                it.background is Int -> navigation_bar_bg.setBackgroundColor(it.background)
+                when {
+                    it.titleColor is String -> navigation_bar_title.setTextColor(Color.parseColor(it.titleColor))
+                    it.titleColor is Int -> navigation_bar_title.setTextColor(it.titleColor)
+                }
             }
 
-            when {
-                it.titleColor is String -> navigation_bar_title.setTextColor(Color.parseColor(it.titleColor))
-                it.titleColor is Int -> navigation_bar_title.setTextColor(it.titleColor)
-            }
+            setAction(style.primaryAction, navigation_bar_action_primary, navigation_bar_action_primary_icon, navigation_bar_action_primary_acc)
+            setAction(style.secondaryAction, navigation_bar_action_secondary, navigation_bar_action_secondary_icon, navigation_bar_action_secondary_acc)
         }
-
-        setAction(style.primaryAction, navigation_bar_action_primary, navigation_bar_action_primary_icon, navigation_bar_action_primary_acc)
-        setAction(style.secondaryAction, navigation_bar_action_secondary, navigation_bar_action_secondary_icon, navigation_bar_action_secondary_acc)
     }
 
     private fun setAction(data: DAActionItem?, rl: RelativeLayout, iv: ImageView, acc: LinearLayout) {
@@ -250,6 +486,7 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
             }
 
             if (data.viewAcc != null) {
+                acc.removeAllViews()
                 acc.addView(data.viewAcc)
             }
 
@@ -312,10 +549,13 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
 
         badgesView.da_badges_bg.background = gD
 
+
+        if (fontTypeFace != null) {
+            badgesView.da_badges_count.typeface = fontTypeFace
+        }
         badgesView.da_badges_count.text = badges.count
 
-        if (badges.onChange != null)
-            badges.onChange.onChange(badgesView.da_badges_count)
+        badges.onChange.onChange(badgesView.da_badges_count)
 
         parent.addView(badgesView)
     }
@@ -325,32 +565,53 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
         when {
             data != null -> when (data) {
                 is Drawable -> {
+                    usingTitle(false)
                     navigation_bar_title.visibility = View.GONE
                     navigation_bar_title_iv.visibility = View.VISIBLE
                     navigation_bar_title_iv.setImageDrawable(data)
                 }
                 is String -> {
+                    usingTitle(false)
                     navigation_bar_title_iv.visibility = View.GONE
                     navigation_bar_title.visibility = View.VISIBLE
                     navigation_bar_title.text = data.toString()
+                    if (fontTypeFace != null)
+                        navigation_bar_title.typeface = fontTypeFace
                 }
                 is Int -> {
+                    usingTitle(false)
                     navigation_bar_title.visibility = View.GONE
                     navigation_bar_title_iv.visibility = View.VISIBLE
                     navigation_bar_title_iv.setImageResource(data)
+                }
+                is View -> {
+                    usingTitle(true)
+                    navigation_bar_title_custom_view.removeAllViews()
+                    navigation_bar_title_custom_view.addView(data)
                 }
             }
         }
     }
 
+    private fun usingTitle(isCustom: Boolean) {
+        if (isCustom) {
+            navigation_bar_title_normal_view.visibility = View.GONE
+            navigation_bar_title_custom_view.visibility = View.VISIBLE
+        } else {
+            navigation_bar_title_normal_view.visibility = View.VISIBLE
+            navigation_bar_title_custom_view.visibility = View.GONE
+        }
+    }
+
     override fun onSaveInstanceState(outState: Bundle?) {
-        outState!!.putInt(getString(R.string.selected_position), this.selectedPosition)
+        outState!!.putString(getString(R.string.selected_position), this.selectedTag)
         super.onSaveInstanceState(outState)
     }
 
-
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
         super.onRestoreInstanceState(savedInstanceState)
-        this.selectedPosition = savedInstanceState!!.getInt(getString(R.string.selected_position), 0)
+        savedInstanceState!!.getString(getString(R.string.selected_position))?.let {
+            this.selectedTag = it
+        }
     }
 }

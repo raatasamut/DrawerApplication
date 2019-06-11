@@ -18,4 +18,5 @@
     <dimen name="menu_icon_wh">24dp</dimen>
 
     <dimen name="menu_badages_wh">32dp</dimen>
+
 </resources>

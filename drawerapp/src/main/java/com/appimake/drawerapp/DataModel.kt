@@ -3,51 +3,67 @@ package com.appimake.drawerapp
 import android.graphics.Typeface
 import android.support.v4.app.Fragment
 import android.view.View
+import com.appimake.drawerapp.expand.DAExpandableLayout
 
 data class DAHeaderModel(
-        val name: String,
-        val email: String,
-        val pictureURL: String,
-        val background: Any?,
+        val name: String? = null,
+        val email: String? = null,
+        val pictureURL: String? = null,
+        val background: Any? = null,
         val onClick: DACallBack)
 
-data class DAMenuItem(
-        val name: Any?,
-        val customView: Any?,
-        val badges: DABadges?,
-        val navBarStyle: DANavBarStyle?,
-        val background: Any?,
-        val moduleView: Fragment?)
+open class DAMenuItem(
+        val tag: String = "",
+        val title: Any? = null,
+        val customView: Any? = null,
+        val badges: DABadges? = null,
+        val navBarStyle: DANavBarStyle? = null,
+        val background: Any? = null,
+        val moduleView: Fragment? = null,
+        val subMenuList: ArrayList<DASubMenuItem> = ArrayList())
+
+data class DASubMenuItem(
+        val tag: String? = null,
+        val title: Any? = null,
+        val customView: Any? = null,
+        val moduleView: Fragment? = null)
 
 data class DAMenuItemDefault(
-        val title: String,
-        val titleStyle: DATextStyle?,
-        val icDefault: Any?,
-        val icSelected: Any?,
-        val onClick: DACallBack?)
+        val title: String? = null,
+        val titleStyle: DATextStyle? = null,
+        val icDefault: Any? = null,
+        val icSelected: Any? = null,
+        val onClick: DACallBack? = null)
 
 data class DATextStyle(
-        val defaultColor: String,
-        val selectedColor: String,
-        val typeFace: Typeface,
-        val textSize: Float)
+        val defaultColor: String? = null,
+        val selectedColor: String? = null,
+        val typeFace: Typeface? = null,
+        val textSize: Float = 18f)
 
 data class DANavBarStyle(
-        val background: Any?,
-        val titleColor: Any?,
-        val titleSize: Float,
-        val primaryAction: DAActionItem?,
-        val secondaryAction: DAActionItem?)
+        val background: Any? = "#FFDDAA",
+        val titleColor: Any? = "#FFFFFF",
+        val titleSize: Float = 18f,
+        val primaryAction: DAActionItem? = null,
+        val secondaryAction: DAActionItem? = null)
 
 data class DAActionItem(
-        val icon: Any,
-        val viewAcc: View?,
+        val icon: Any? = null,
+        val viewAcc: View? = null,
         val onClick: DACallBack)
 
 data class DABadges(
-        val count: String,
-        val color: Any?,
-        val backgroundColor: Any?,
-        val stroke: Int,
+        val count: String? = null,
+        val color: Any? = null,
+        val backgroundColor: Any? = null,
+        val stroke: Int = 1,
         val shape: Int,
-        val onChange: DABadgesChange?)
+        val onChange: DABadgesChange)
+
+data class DASelectedView(
+        val groupView: DAExpandableLayout,
+        val view: View,
+        val group: DAMenuItem,
+        val sub: DASubMenuItem
+)
