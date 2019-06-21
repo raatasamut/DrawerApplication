@@ -6,11 +6,11 @@ import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.support.design.widget.NavigationView
-import android.support.v4.app.Fragment
-import android.support.v4.view.GravityCompat
-import android.support.v4.widget.DrawerLayout
-import android.support.v7.app.AppCompatActivity
+import com.google.android.material.navigation.NavigationView
+import androidx.fragment.app.Fragment
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -44,7 +44,7 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
 
     private var subMenuSelectedView: DASelectedView? = null
 
-    private var moduleView: Fragment? = null
+    private var moduleView: androidx.fragment.app.Fragment? = null
 
     abstract fun setDAHeader(): Any
 
@@ -71,7 +71,7 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
         setHeader()
         setMenu()
 
-        drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
+        drawer_layout.addDrawerListener(object : androidx.drawerlayout.widget.DrawerLayout.DrawerListener {
             override fun onDrawerStateChanged(p0: Int) {}
 
             override fun onDrawerSlide(p0: View, p1: Float) {}
@@ -603,15 +603,15 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
-        outState!!.putString(getString(R.string.selected_position), this.selectedTag)
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
-        super.onRestoreInstanceState(savedInstanceState)
-        savedInstanceState!!.getString(getString(R.string.selected_position))?.let {
-            this.selectedTag = it
-        }
-    }
+//    override fun onSaveInstanceState(outState: Bundle?) {
+//        outState!!.putString(getString(R.string.selected_position), this.selectedTag)
+//        super.onSaveInstanceState(outState)
+//    }
+//
+//    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+//        super.onRestoreInstanceState(savedInstanceState)
+//        savedInstanceState!!.getString(getString(R.string.selected_position))?.let {
+//            this.selectedTag = it
+//        }
+//    }
 }

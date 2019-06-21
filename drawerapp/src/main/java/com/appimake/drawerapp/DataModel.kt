@@ -1,7 +1,7 @@
 package com.appimake.drawerapp
 
 import android.graphics.Typeface
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import android.view.View
 import com.appimake.drawerapp.expand.DAExpandableLayout
 
@@ -19,14 +19,14 @@ open class DAMenuItem(
         val badges: DABadges? = null,
         val navBarStyle: DANavBarStyle? = null,
         val background: Any? = null,
-        val moduleView: Fragment? = null,
+        val moduleView: androidx.fragment.app.Fragment? = null,
         val subMenuList: ArrayList<DASubMenuItem> = ArrayList())
 
 data class DASubMenuItem(
         val tag: String? = null,
         val title: Any? = null,
         val customView: Any? = null,
-        val moduleView: Fragment? = null)
+        val moduleView: androidx.fragment.app.Fragment? = null)
 
 data class DAMenuItemDefault(
         val title: String? = null,
