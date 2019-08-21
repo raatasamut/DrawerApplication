@@ -6,11 +6,6 @@ import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import com.google.android.material.navigation.NavigationView
-import androidx.fragment.app.Fragment
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -19,8 +14,11 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
 import com.appimake.drawerapp.expand.DAExpandableLayout
 import com.bumptech.glide.Glide
+import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.da_activity_main.*
 import kotlinx.android.synthetic.main.da_activity_main.view.*
 import kotlinx.android.synthetic.main.da_app_bar_main.*
@@ -81,7 +79,7 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
                     supportFragmentManager
                             .beginTransaction()
                             .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                            .replace(R.id.da_container, moduleView!!)
+                            .replace(R.id.da_container, it)
                             .commit()
                 }
             }
@@ -292,11 +290,11 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
         }
     }
 
-    fun selectModuleByTag(tag: String) {
+    fun selectModuleByTag(tag: String, forceChange: Boolean = false) {
         loop@ for (i in 0 until nav_view.da_menu_list.childCount) {
             if (nav_view.da_menu_list.getChildAt(i).tag is DAMenuItem) {
                 if ((nav_view.da_menu_list.getChildAt(i).tag as DAMenuItem).tag.equals(tag)) {
-                    selected(i)
+                    selected(i, forceChange)
                     return
                 }
 
@@ -329,7 +327,7 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
         return null
     }
 
-    private fun selected(position: Int) {
+    private fun selected(position: Int, forceChange: Boolean = false) {
         if (nav_view.da_menu_list.childCount > 0 &&
                 nav_view.da_menu_list.getChildAt(position) != null) {
 
@@ -371,6 +369,16 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
                                     .commit()
                         }
                         moduleView = menuItem.moduleView
+
+                        if (forceChange) {
+                            moduleView?.let {
+                                supportFragmentManager
+                                        .beginTransaction()
+                                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                                        .replace(R.id.da_container, it)
+                                        .commit()
+                            }
+                        }
 
                         subMenuSelectedView = null
 
