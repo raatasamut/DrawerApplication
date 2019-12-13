@@ -290,11 +290,11 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
         }
     }
 
-    fun selectModuleByTag(tag: String, forceChange: Boolean = false) {
+    fun selectModuleByTag(tag: String, forceChange: Boolean = false, showAnim: Boolean = true) {
         loop@ for (i in 0 until nav_view.da_menu_list.childCount) {
             if (nav_view.da_menu_list.getChildAt(i).tag is DAMenuItem) {
                 if ((nav_view.da_menu_list.getChildAt(i).tag as DAMenuItem).tag.equals(tag)) {
-                    selected(i, forceChange)
+                    selected(i, forceChange, showAnim)
                     return
                 }
 
@@ -327,7 +327,7 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
         return null
     }
 
-    private fun selected(position: Int, forceChange: Boolean = false) {
+    private fun selected(position: Int, forceChange: Boolean = false, showAnim: Boolean = true) {
         if (nav_view.da_menu_list.childCount > 0 &&
                 nav_view.da_menu_list.getChildAt(position) != null) {
 
@@ -372,11 +372,18 @@ abstract class DrawerAppActivity : AppCompatActivity(), NavigationView.OnNavigat
 
                         if (forceChange) {
                             moduleView?.let {
-                                supportFragmentManager
-                                        .beginTransaction()
-                                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                                        .replace(R.id.da_container, it)
-                                        .commit()
+                                if (showAnim) {
+                                    supportFragmentManager
+                                            .beginTransaction()
+                                            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                                            .replace(R.id.da_container, it)
+                                            .commit()
+                                } else {
+                                    supportFragmentManager
+                                            .beginTransaction()
+                                            .replace(R.id.da_container, it)
+                                            .commit()
+                                }
                             }
                         }
 
