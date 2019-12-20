@@ -97,13 +97,13 @@
             android:id="@+id/navigation_bar_title_normal_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:padding="@dimen/navigationbar_title_padding">
+            android:gravity="center">
 
             <ImageView
                 android:id="@+id/navigation_bar_title_iv"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:padding="@dimen/navigationbar_title_padding"
                 android:scaleType="fitCenter" />
 
             <TextView
@@ -111,6 +111,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
+                android:textAlignment="center"
                 android:text="TITLE"
                 android:textColor="@android:color/background_dark"
                 android:textSize="@dimen/navigationbar_title_text_size" />
